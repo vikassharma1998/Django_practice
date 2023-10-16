@@ -1,25 +1,25 @@
-from rest_framework.decorators import api_view
+from rest_framework.views import APIView
 from watchlist_app.models import Movie
 from watchlist_app.api.serializers import MovieSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
-@api_view(['GET', 'POST'])
-def movie_list(request):
-    if request.method == 'GET':
+
+class MovieListAV(APIView):
+    def get(self,request):
         movie = Movie.objects.all()
         serializer = MovieSerializer(movie, many=True)
 
         return Response(serializer.data)
-    if request.method == 'POST':
+    def post(self, request):
         movie = MovieSerializer(data= request.data)
         if movie.is_valid():
             movie.save()
             return Response(movie.data, status=201)
 
-@api_view(['GET','PUT','DELETE'])
-def movie_details(request, pk):
-    if request.method == 'GET':
+
+class MovieDetailsAV(APIView):
+    def get(self,request,pk):
         try:
             movie_detail = Movie.objects.get(pk=pk)
         except Movie.DoesNotExist:
@@ -27,14 +27,14 @@ def movie_details(request, pk):
         serializer = MovieSerializer(movie_detail)
         return Response(serializer.data)
     
-    if request.method == 'PUT':
+    def put(self,request,pk):
         movie_detail = Movie.objects.get(pk=pk)
         serializer = MovieSerializer(movie_detail, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         
-    if request.method == 'DELETE':
+    def delete(self,request,pk):
             movie = Movie.objects.get(pk=pk)
             movie.delete()
             return Response({'status_reason':'Deleted'},status=status.HTTP_204_NO_CONTENT)
