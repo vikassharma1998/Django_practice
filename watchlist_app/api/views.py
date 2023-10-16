@@ -16,7 +16,8 @@ class MovieListAV(APIView):
         if movie.is_valid():
             movie.save()
             return Response(movie.data, status=201)
-
+        else:
+            return Response(movie.errors, status=400)
 
 class MovieDetailsAV(APIView):
     def get(self,request,pk):
