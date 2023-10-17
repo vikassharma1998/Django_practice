@@ -3,6 +3,25 @@ from watchlist_app.models import StreamPlatform, WatchList, Review
 from watchlist_app.api.serializers import StreamPlatformSerializer, WatchListSerializers, ReviewSerializer
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import mixins
+from rest_framework import generics
+
+class ReviewList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+    
+class ReviewDetail(mixins.RetrieveModelMixin,generics.GenericAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
 
 class StreamPlatformAV(APIView):
     def get(self, request):
@@ -89,39 +108,39 @@ class WatchListDetailsAV(APIView):
         return Response(status= status.HTTP_204_NO_CONTENT)
 
 
-class ReviewAV(APIView):
-    def get(self, request):
-        review = Review.objects.all()
-        review_serializer = ReviewSerializer(review, many=True)
+# class ReviewAV(APIView):
+#     def get(self, request):
+#         review = Review.objects.all()
+#         review_serializer = ReviewSerializer(review, many=True)
 
-        return Response(review_serializer.data)
+#         return Response(review_serializer.data)
     
-    def post(self, request):
-        review_serializer = ReviewSerializer(data=request.data)
-        if review_serializer.is_valid():
-            review_serializer.save()
-            return Response(review_serializer.data)
+#     def post(self, request):
+#         review_serializer = ReviewSerializer(data=request.data)
+#         if review_serializer.is_valid():
+#             review_serializer.save()
+#             return Response(review_serializer.data)
         
-class ReviewDetailsAV(APIView):
+# class ReviewDetailsAV(APIView):
 
-    def get(self, request,pk):
-        try:
-            review= Review.objects.get(pk=pk)
-            review_serializer = ReviewSerializer(review)
-            return Response(review_serializer.data)
-        except Review.DoesNotExist:
-            return Response({'Error': "Data Not Found"}, status=status.HTTP_404_NOT_FOUND)
+#     def get(self, request,pk):
+#         try:
+#             review= Review.objects.get(pk=pk)
+#             review_serializer = ReviewSerializer(review)
+#             return Response(review_serializer.data)
+#         except Review.DoesNotExist:
+#             return Response({'Error': "Data Not Found"}, status=status.HTTP_404_NOT_FOUND)
         
-    def post(self, request, pk):
-        review = Review.objects.get(pk=pk)
-        review_serializer = ReviewSerializer(review, data=request.data)
-        if review_serializer.is_valid():
-            review_serializer.save()
-            return Response(review_serializer.data)
-        else :
-             return Response(review_serializer.errors)      
+#     def post(self, request, pk):
+#         review = Review.objects.get(pk=pk)
+#         review_serializer = ReviewSerializer(review, data=request.data)
+#         if review_serializer.is_valid():
+#             review_serializer.save()
+#             return Response(review_serializer.data)
+#         else :
+#              return Response(review_serializer.errors)      
         
-    def delete(self, request,pk):
-        review = Review.object.get(pk=pk)
-        review.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)    
+#     def delete(self, request,pk):
+#         review = Review.object.get(pk=pk)
+#         review.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)    
