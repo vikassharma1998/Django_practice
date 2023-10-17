@@ -7,7 +7,7 @@ from rest_framework import status
 class StreamPlatformAV(APIView):
     def get(self, request):
         stream_platform = StreamPlatform.objects.all()
-        streamplatformserializer = StreamPlatformSerializer(stream_platform, many = True)
+        streamplatformserializer = StreamPlatformSerializer(stream_platform, many = True, context={'request': request})
         
         return Response(streamplatformserializer.data, status=status.HTTP_202_ACCEPTED)
     
@@ -26,7 +26,7 @@ class StreamPlatfromDetalisAV(APIView):
             stream_platform_details = StreamPlatform .objects.get(pk=pk)
         except StreamPlatform.DoesNotExist:
                 return Response({'Error':'Stream Platfrom does not found'}, status= status.HTTP_404_NOT_FOUND)    
-        streamplatformserializer = StreamPlatformSerializer(stream_platform_details)   
+        streamplatformserializer = StreamPlatformSerializer(stream_platform_details,context={'request': request})   
 
         return Response(streamplatformserializer.data)
         
@@ -52,12 +52,12 @@ class StreamPlatfromDetalisAV(APIView):
 class WatchListAV(APIView):
      def get(self, request):
           watchlist = WatchList.objects.all()
-          watchlistserializers = WatchListSerializers(watchlist, many=True)
+          watchlistserializers = WatchListSerializers(watchlist, many=True, context={'request': request})
 
           return Response(watchlistserializers.data)
      
      def post(self, request):
-        watchlistserializers = WatchListSerializers(data = request.data)
+        watchlistserializers = WatchListSerializers(data = request.data ,context={'request': request})
         if watchlistserializers.is_valid():
             watchlistserializers.save()
             return Response(watchlistserializers.data, status= status.HTTP_201_CREATED)
@@ -68,13 +68,13 @@ class WatchListDetailsAV(APIView):
 
     def get(self, request, pk):
         watchlist = WatchList.objects.get(pk=pk)
-        watchlistserializer = WatchListSerializers(watchlist)   
+        watchlistserializer = WatchListSerializers(watchlist, context={'request': request})   
 
         return Response(watchlistserializer.data)   
      
     def put(self, request, pk):
         watchlist = WatchList.objects.get(pk=pk)
-        watchlistserializer = WatchListSerializers(watchlist, data = request.data)  
+        watchlistserializer = WatchListSerializers(watchlist, data = request.data, context={'request': request})  
         if watchlistserializer.is_valid():
             watchlistserializer.save()
 
