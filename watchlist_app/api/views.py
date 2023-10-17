@@ -1,13 +1,13 @@
 from rest_framework.views import APIView
-from watchlist_app.models import StreamPlatform, WatchList
-from watchlist_app.api.serializers import StreamPlatformSerializer, WatchListSerializers
+from watchlist_app.models import StreamPlatform, WatchList, Review
+from watchlist_app.api.serializers import StreamPlatformSerializer, WatchListSerializers, ReviewSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
 class StreamPlatformAV(APIView):
     def get(self, request):
         stream_platform = StreamPlatform.objects.all()
-        streamplatformserializer = StreamPlatformSerializer(stream_platform, many = True, context={'request': request})
+        streamplatformserializer = StreamPlatformSerializer(stream_platform, many = True)
         
         return Response(streamplatformserializer.data, status=status.HTTP_202_ACCEPTED)
     
@@ -26,7 +26,7 @@ class StreamPlatfromDetalisAV(APIView):
             stream_platform_details = StreamPlatform .objects.get(pk=pk)
         except StreamPlatform.DoesNotExist:
                 return Response({'Error':'Stream Platfrom does not found'}, status= status.HTTP_404_NOT_FOUND)    
-        streamplatformserializer = StreamPlatformSerializer(stream_platform_details,context={'request': request})   
+        streamplatformserializer = StreamPlatformSerializer(stream_platform_details)   
 
         return Response(streamplatformserializer.data)
         
@@ -52,12 +52,12 @@ class StreamPlatfromDetalisAV(APIView):
 class WatchListAV(APIView):
      def get(self, request):
           watchlist = WatchList.objects.all()
-          watchlistserializers = WatchListSerializers(watchlist, many=True, context={'request': request})
+          watchlistserializers = WatchListSerializers(watchlist, many=True)
 
           return Response(watchlistserializers.data)
      
      def post(self, request):
-        watchlistserializers = WatchListSerializers(data = request.data ,context={'request': request})
+        watchlistserializers = WatchListSerializers(data = request.data)
         if watchlistserializers.is_valid():
             watchlistserializers.save()
             return Response(watchlistserializers.data, status= status.HTTP_201_CREATED)
@@ -68,13 +68,13 @@ class WatchListDetailsAV(APIView):
 
     def get(self, request, pk):
         watchlist = WatchList.objects.get(pk=pk)
-        watchlistserializer = WatchListSerializers(watchlist, context={'request': request})   
+        watchlistserializer = WatchListSerializers(watchlist)   
 
         return Response(watchlistserializer.data)   
      
     def put(self, request, pk):
         watchlist = WatchList.objects.get(pk=pk)
-        watchlistserializer = WatchListSerializers(watchlist, data = request.data, context={'request': request})  
+        watchlistserializer = WatchListSerializers(watchlist, data = request.data)  
         if watchlistserializer.is_valid():
             watchlistserializer.save()
 
@@ -87,3 +87,41 @@ class WatchListDetailsAV(APIView):
         watchlist.delete()
 
         return Response(status= status.HTTP_204_NO_CONTENT)
+
+
+class ReviewAV(APIView):
+    def get(self, request):
+        review = Review.objects.all()
+        review_serializer = ReviewSerializer(review, many=True)
+
+        return Response(review_serializer.data)
+    
+    def post(self, request):
+        review_serializer = ReviewSerializer(data=request.data)
+        if review_serializer.is_valid():
+            review_serializer.save()
+            return Response(review_serializer.data)
+        
+class ReviewDetailsAV(APIView):
+
+    def get(self, request,pk):
+        try:
+            review= Review.objects.get(pk=pk)
+            review_serializer = ReviewSerializer(review)
+            return Response(review_serializer.data)
+        except Review.DoesNotExist:
+            return Response({'Error': "Data Not Found"}, status=status.HTTP_404_NOT_FOUND)
+        
+    def post(self, request, pk):
+        review = Review.objects.get(pk=pk)
+        review_serializer = ReviewSerializer(review, data=request.data)
+        if review_serializer.is_valid():
+            review_serializer.save()
+            return Response(review_serializer.data)
+        else :
+             return Response(review_serializer.errors)      
+        
+    def delete(self, request,pk):
+        review = Review.object.get(pk=pk)
+        review.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)    
